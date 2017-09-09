@@ -1,6 +1,6 @@
 #R things
 .Rproj
-.Rproj.user/*
+.Rproj.user
 
 # All scraped html-files
 scrape/www.pollofpolls.no/*
