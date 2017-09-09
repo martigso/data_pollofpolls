@@ -3,7 +3,7 @@ rm(list = ls())
 library(rvest);library(dplyr);library(ggplot2)
 library(pbmcapply);library(reshape2)
 
-maling <- list.files("./scrape/www.pollofpolls.no/", pattern = "?cmd=Stortinget&fylke=", full.names = TRUE)
+maling_files <- list.files("./scrape/www.pollofpolls.no/", pattern = "?cmd=Stortinget&fylke=", full.names = TRUE)
 
 fylker <- function(x){
   
@@ -12,7 +12,7 @@ fylker <- function(x){
   df <- data.frame((raw %>% html_nodes("table"))[3] %>% html_table())
   
   links <- (raw %>% html_nodes("table"))[3] %>% html_nodes("a") %>% html_attr("href")
-  df$maling_link <- unique(links[which(grepl("gallupid", links))])
+  df$maling_files_link <- unique(links[which(grepl("gallupid", links))])
   
   df$fylke <- gsub("Stortingsvalg: ", "", (raw %>% html_nodes("h1") %>% html_text())[2])
   
@@ -20,15 +20,11 @@ fylker <- function(x){
 }
 
 
-fylker(maling[28])
+polls_wide <- lapply(maling_files[which(grepl("\\=([0-9]{1,2})$", maling_files))][-1], fylker)
 
-sort(maling)
+polls_wide <- bind_rows(polls_wide)
 
-test <- lapply(maling[which(grepl("\\=([0-9]{1,2})$", maling))][-1], fylker)
-
-test <- bind_rows(test)
-
-read_maling <- function(x){
+read_maling_files <- function(x){
   raw <- read_html(paste0("./scrape/www.pollofpolls.no//index.html", x), encoding = "utf-8")
   
   df <- data.frame(matrix(nrow = 1, ncol = 2, dimnames = list(1, c("N", "id"))))
@@ -37,24 +33,23 @@ read_maling <- function(x){
   return(df)
 }
 
-hei <- pbmclapply(test$maling, read_maling, mc.cores = detectCores()-1)
+respondents <- pbmclapply(polls_wide$maling_files, read_maling_files, mc.cores = detectCores()-1)
 
-hei <- bind_rows(hei)
+respondents <- bind_rows(respondents)
 
-test <- merge(x = test, y = hei, by.x = "maling_link", by.y = "id", all.x = TRUE)
-head(test)
-test2 <- melt(test, measure.vars =c("Ap", "Høyre", "Frp", "SV", "Sp", "KrF", "Venstre", "MDG", "Rødt", "Andre"), variable.name = "parti", value.name = "prosent")
-test2$N <- as.integer(test2$N)
+polls_wide <- merge(x = polls_wide, y = respondents, by.x = "maling_files_link", by.y = "id", all.x = TRUE)
+rm(respondents, maling_files)
 
-test2$mandat <- as.integer(gsub("\\(|\\)", "", stringr::str_extract_all(test2$prosent, "\\([0-9]+\\)", simplify = TRUE)))
-test2$prosent <- as.numeric(stringr::str_trim(gsub("\\,", ".", gsub("\\([0-9]+\\)", "", test2$prosent))))
-test2$stemmer <- round((test2$N / 100) * test2$prosent, digits = 0)
+polls_long <- melt(polls_wide, measure.vars =c("Ap", "Høyre", "Frp", "SV", "Sp", "KrF", "Venstre", "MDG", "Rødt", "Andre"), variable.name = "parti", value.name = "prosent")
+rm(polls_wide)
 
+polls_long$N <- as.integer(polls_long$N)
 
-test2$Dato <- as.Date(test2$Dato, format = "%d/%m-%Y")
+polls_long$mandat <- as.integer(gsub("\\(|\\)", "", stringr::str_extract_all(polls_long$prosent, "\\([0-9]+\\)", simplify = TRUE)))
+polls_long$prosent <- as.numeric(stringr::str_trim(gsub("\\,", ".", gsub("\\([0-9]+\\)", "", polls_long$prosent))))
+polls_long$stemmer <- round((polls_long$N / 100) * polls_long$prosent, digits = 0)
+polls_long$Dato <- as.Date(polls_long$Dato, format = "%d/%m-%Y")
+polls_long <- polls_long %>% group_by(maling_files_link, fylke) %>% mutate(total_mandat_fylke = sum(mandat))
 
-
-
-
-
+write.csv(polls_long, file = "./data/polls_long.csv")
 
