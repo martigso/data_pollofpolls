@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1504953877945.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "AC8F5D8E",
+    "lastKnownWriteTime" : 179225488,
+    "last_content_update" : 1504953877945,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "4F1C9741",
+        "caption" : "lol",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=lol&cache_key=4F1C9741",
+        "displayedObservations" : 357,
+        "environment" : "",
+        "object" : "lol",
+        "preview" : 0,
+        "totalObservations" : 357,
+        "variables" : 3
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

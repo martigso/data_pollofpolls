@@ -1,0 +1,5 @@
+#R things
+.Rproj
+
+# All scraped html-files
+scrape/www.pollofpolls.no/*
