@@ -5,3 +5,6 @@
 
 # All scraped html-files
 scrape/www.pollofpolls.no/*
+
+#
+StateSpaceModel/valgportal/www/*

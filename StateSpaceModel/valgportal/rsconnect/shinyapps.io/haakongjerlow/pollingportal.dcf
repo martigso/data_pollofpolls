@@ -1,0 +1,11 @@
+name: pollingportal
+title: pollingportal
+account: haakongjerlow
+server: shinyapps.io
+appId: 212988
+bundleId: 975445
+url: https://haakongjerlow.shinyapps.io/pollingportal/
+when: 1505074905.00405
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: www/electionday.rdata|www/electiondayiterations.rdata|www/stanresult_200iterations.rdata
